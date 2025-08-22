@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>.IPA Uploader</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .upload-container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 400px;
+    }
+    .drop-zone {
+      border: 2px dashed #6c63ff;
+      border-radius: 10px;
+      padding: 40px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .drop-zone.dragover {
+      background: #f0f0ff;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #6c63ff, #4e54c8);
+      transition: width 0.3s;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      background: #6c63ff;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+    #installLink {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #6c63ff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="upload-container">
+    <h2>Upload .IPA File</h2>
+    <div class="drop-zone" id="dropZone">
+      <p>Drag & Drop your .ipa file here<br>or click to browse</p>
+      <input type="file" id="fileInput" accept=".ipa" hidden>
+    </div>
+    <button id="uploadBtn" disabled>Submit</button>
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+    <a id="installLink" href="#" style="display:none;">Install on iPhone/iPad</a>
+  </div>
+
+  <script>
+    const dropZone = document.getElementById("dropZone");
+    const fileInput = document.getElementById("fileInput");
+    const uploadBtn = document.getElementById("uploadBtn");
+    const progressFill = document.getElementById("progressFill");
+    const installLink = document.getElementById("installLink");
+
+    let selectedFile = null;
+
+    dropZone.addEventListener("click", () => fileInput.click());
+
+    dropZone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropZone.classList.add("dragover");
+    });
+
+    dropZone.addEventListener("dragleave", () => {
+      dropZone.classList.remove("dragover");
+    });
+
+    dropZone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropZone.classList.remove("dragover");
+      handleFile(e.dataTransfer.files[0]);
+    });
+
+    fileInput.addEventListener("change", (e) => {
+      handleFile(e.target.files[0]);
+    });
+
+    function handleFile(file) {
+      if (file && file.name.endsWith(".ipa")) {
+        selectedFile = file;
+        uploadBtn.disabled = false;
+        dropZone.querySelector("p").textContent = file.name;
+      } else {
+        alert("Please upload a valid .ipa file!");
+      }
+    }
+
+    uploadBtn.addEventListener("click", () => {
+      if (!selectedFile) return;
+
+      const formData = new FormData();
+      formData.append("ipaFile", selectedFile);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/upload", true);
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percent = (event.loaded / event.total) * 100;
+          progressFill.style.width = percent + "%";
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          progressFill.style.width = "0";
+          uploadBtn.disabled = true;
+          selectedFile = null;
+
+          installLink.href = data.installUrl;
+          installLink.style.display = "block";
+        } else {
+          alert("Upload failed!");
+        }
+      };
+
+      xhr.send(formData);
+    });
+  </script>
+
+</body>
+</html>
