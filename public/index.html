@@ -79,7 +79,13 @@
     <div class="progress-bar" id="progressBar">
       <div class="progress-bar-fill" id="progressFill"></div>
     </div>
-    <a id="installLink" href="#" style="display:none;">Install on iPhone/iPad</a>
+    <!-- <a id="installLink" href="#" style="display:none;">Install</a> -->
+
+    <div class="action-links" style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+        <a id="installLink" href="#" target="_blank" style="display:none; padding: 10px 20px; border: none; border-radius: 8px; background: #1696c8; color: #fff; cursor: pointer;">Install</a>
+        <button id="shareBtn" style="display:none; padding: 10px 20px; border: none; border-radius: 8px; background: #4caf50; color: #fff; cursor: pointer;">COPY URL</button>
+    </div>
+     
   </div>
 
   <script>
@@ -88,6 +94,7 @@
     const uploadBtn = document.getElementById("uploadBtn");
     const progressFill = document.getElementById("progressFill");
     const installLink = document.getElementById("installLink");
+    const shareBtn = document.getElementById("shareBtn"); 
 
     let selectedFile = null;
 
@@ -146,7 +153,21 @@
           selectedFile = null;
 
           installLink.href = data.installUrl;
+           console.log(`[DEBUG] shared url : ${data.installUrl}`);
           installLink.style.display = "block";
+
+          shareBtn.style.display = "inline-block";
+          // SHare 
+          shareBtn.onclick = () => {
+          navigator.clipboard.writeText(data.installUrl)
+            .then(() => {
+                alert("Link copied to clipboard!");
+            })
+            .catch(err => {
+                alert("Failed to copy link.");
+                console.error(err);
+             });
+        };
         } else {
           alert("Upload failed!");
         }

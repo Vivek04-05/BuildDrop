@@ -9,6 +9,8 @@ const plist = require("plist");
 const app = express();
 const PORT = 3000;
 
+const baseUrl = "https://62589867902f.ngrok-free.app"; // Chnage everytime as you run ngrok . or not if you have your own server .
+
 // Storage config
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -112,7 +114,7 @@ app.post("/upload", upload.single("ipaFile"), (req, res) => {
     console.log("[DEBUG] File uploaded:", req.file);
 
     
-    const baseUrl = "https://ea7e193cc66c.ngrok-free.app";
+    // const baseUrl = "https://ea7e193cc66c.ngrok-free.app";
 
     console.log(`[DEBUG] Base URL: ${baseUrl}`);
 
