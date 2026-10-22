@@ -1,5 +1,5 @@
 
-//// RESOURCES
+//// RESOURCES 
 
 1. https://chatgpt.com/c/68a84285-d660-832b-8017-637ca4d96db6 -> (create while creating the project , read if you have doubt or you can continue )
 
